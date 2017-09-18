@@ -12,6 +12,7 @@ Set.time = 0.3;
 Set.keyboard = '0';
 Set.clim = [0 1];
 Set.control = 'auto';
+Set.scale_col = false;
 
 Set.quiver_scale = 1;
 Set.hquiver = [];
@@ -235,6 +236,15 @@ switch Set.keyboard
     case 'h'
         disp 'Decrease gamma'
         Set.gamma = Set.gamma/.75;
+    case 's'
+        disp 'Toggle scale colors'
+        if Set.scale_col
+            Set.scale_col = false;
+            Set.himage.CDataMapping = 'direct';
+        else
+            Set.scale_col = true;
+            Set.himage.CDataMapping = 'scaled';
+        end
     % Frame control
     case 'm'
         if strcmp(Set.control,'manual')
@@ -245,11 +255,11 @@ switch Set.keyboard
             Set.control = 'manual';
         end
     case '.'
-        disp 'Next frame'
         Set.fid = Set.fid+1;
+        fprintf('Next frame: %d\n',Set.fid)
     case ','
-        disp 'Previous frame'
         Set.fid = Set.fid-1;
+        fprintf('Previous frame: %d\n',Set.fid)
     case 'k'
         disp 'Keyboard'
         keyboard
@@ -291,6 +301,7 @@ disp '+: increase play speed'
 disp '-: decrease play speed'
 disp 'g: increase gamma correction'
 disp 'h: decrease gamma correction'
+disp 's: scale colors'
 disp 'm: toggle manual frame control'    
 disp '.: next frame'
 disp ',: previous frame'
