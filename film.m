@@ -1,5 +1,10 @@
 function film(IMG,varargin)
 % Quiver doesn't appear on manual frames
+
+if nargin == 0
+    IMG = load_images;
+end
+
 Set.fig = figure;
 Set.dim = size(IMG);
 Set.gamma = 1;
@@ -290,6 +295,37 @@ disp 'm: toggle manual frame control'
 disp '.: next frame'
 disp ',: previous frame'
 disp 'k: keyboard'
+
+function IMG = load_images
+if ispref('film','default_folder')
+    def_fld = getpref('film','default_folder');
+else
+    def_fld = pwd;
+end
+
+[FileName,PathName] = uigetfile(def_fld,'Select files sequence...', ...
+    'MultiSelect','on');
+
+setpref('film','default_folder',PathName);
+
+for fi = 1:numel(FileName)
+    if fi == 1
+        samp = imread(fullfile(PathName,FileName{1}));
+        dim = size(samp);
+        if numel(dim) == 2
+            IMG = zeros(dim(1),dim(2),numel(FileName));
+        else
+            IMG = zeros(dim(1),dim(2),3,numel(FileName));
+        end
+    end
+    
+    if numel(dim) == 2
+        IMG(:,:,fi) = imread(fullfile(PathName,FileName{fi}));
+    else
+        IMG(:,:,:,fi) = imread(fullfile(PathName,FileName{fi}));
+    end
+end
+
 
 % 
 % 
