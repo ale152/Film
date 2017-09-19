@@ -8,7 +8,6 @@ end
 Set.fig = figure;
 Set.dim = size(IMG);
 Set.gamma = 1;
-Set.time = 0.3;
 Set.keyboard = '0';
 Set.clim = [0 1];
 Set.control = 'auto';
@@ -24,6 +23,13 @@ Set.yl = [1 Set.dim(1)];
 % Is the image color or bw?
 Set = is_color(Set);
 Set.opticalflow = false;
+
+% Set the time based on the length
+if Set.N_im > 10
+    Set.time = 1/24;
+else
+    Set.time = 0.3;
+end
 
 % Convert image to double
 IMG = double(IMG);
