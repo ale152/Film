@@ -48,6 +48,7 @@ while run
     try
         % Make sure the right figure is selected
         figure(Set.fig)
+        set(Set.fig,'Name',sprintf('Frame %d/%d',Set.fid,Set.N_im))
         hold on
         drawnow nocallbacks
         
@@ -266,6 +267,16 @@ switch Set.keyboard
     case ','
         Set.fid = Set.fid-1;
         fprintf('Previous frame: %d\n',Set.fid)
+    case 'j'
+        answer = inputdlg('Jumpt to frame:');
+        try
+            Set.fid = str2num(answer{1});
+            if Set.fid > Set.N_im
+                Set.fid = Set.N_im;
+            elseif Set.fid < 1
+                Set.fid = 1;
+            end
+        end
     case 'k'
         disp 'Keyboard'
         keyboard
@@ -311,6 +322,7 @@ disp 's: scale colors'
 disp 'm: toggle manual frame control'    
 disp '.: next frame'
 disp ',: previous frame'
+disp 'j: jump to frame'
 disp 'k: keyboard'
 
 function IMG = load_images
