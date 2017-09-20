@@ -1,8 +1,15 @@
-function film(IMG,varargin)
+function film(varargin)
 % Quiver doesn't appear on manual frames
 
 if nargin == 0
     IMG = load_images;
+end
+
+if nargin == 1
+    IMG = varargin{1};
+elseif nargin > 1
+    IMG = reshape(varargin,1,1,1,nargin);
+    IMG = cell2mat(IMG);
 end
 
 Set.fig = figure;
