@@ -12,6 +12,7 @@ Set.keyboard = '0';
 Set.clim = [0 1];
 Set.control = 'auto';
 Set.scale_col = false;
+Set.colormap_id = 'gray';
 
 Set.quiver_scale = 1;
 Set.hquiver = [];
@@ -252,6 +253,15 @@ switch Set.keyboard
             Set.scale_col = true;
             Set.himage.CDataMapping = 'scaled';
         end
+    % Change colormap
+    case 'c'
+        if strcmp(Set.colormap_id,'gray')
+            set(Set.fig,'colormap',jet);
+            Set.colormap_id = 'jet';
+        else
+            set(Set.fig,'colormap',gray);
+            Set.colormap_id = 'gray';
+        end
     % Frame control
     case 'm'
         if strcmp(Set.control,'manual')
@@ -319,6 +329,7 @@ disp '-: decrease play speed'
 disp 'g: increase gamma correction'
 disp 'h: decrease gamma correction'
 disp 's: scale colors'
+disp 'c: change colormap'
 disp 'm: toggle manual frame control'    
 disp '.: next frame'
 disp ',: previous frame'
@@ -332,7 +343,7 @@ else
     def_fld = pwd;
 end
 
-[FileName,PathName] = uigetfile(def_fld,'Select files sequence...', ...
+[FileName,PathName] = uigetfile(fullfile(def_fld,'*.*'),'Select files sequence...', ...
     'MultiSelect','on');
 
 setpref('film','default_folder',PathName);
