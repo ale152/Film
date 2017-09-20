@@ -13,6 +13,7 @@ Set.clim = [0 1];
 Set.control = 'auto';
 Set.scale_col = false;
 Set.colormap_id = 'gray';
+Set.record_video = false;
 
 Set.quiver_scale = 1;
 Set.hquiver = [];
@@ -105,6 +106,17 @@ while run
         
         % Draw the figure
         drawnow
+        
+        % Record the video
+        if Set.record_video
+            bf = getframe(Set.fig);
+            Set.video.writeVideo(bf);
+            if Set.fid == Set.N_im
+                Set.video.close();
+                Set.record_video = false;
+                disp 'Video export completed!'
+            end
+        end
         
         % Wait for the time
         while toc < Set.time
@@ -305,6 +317,16 @@ switch Set.keyboard
         if ~isempty(Set.hquiver)
             Set.hquiver.AutoScaleFactor = str2double(Set.keyboard).^2;
         end
+    case 'e'
+        [vid_name,vid_path] = uiputfile('*.mp4','Save video file');
+        try
+            Set.video = VideoWriter(fullfile(vid_path,vid_name),'MPEG-4');
+            Set.record_video = true;
+            Set.fid = 1; % Start recording from the first frame
+            Set.video.open();
+        catch me
+            disp(me)
+        end
 
 end
 
@@ -334,6 +356,7 @@ disp 'm: toggle manual frame control'
 disp '.: next frame'
 disp ',: previous frame'
 disp 'j: jump to frame'
+disp 'e: export video'
 disp 'k: keyboard'
 
 function IMG = load_images
