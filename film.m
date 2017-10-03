@@ -47,9 +47,7 @@ if max(IMG(:)) > 1
     IMG = IMG/255;
 end
 
-disp_commands;
-
-run = true; Set.fid = 1;
+run = true; Set.fid = 1; first = true;
 while run
     % Start the timer
     tic
@@ -61,6 +59,10 @@ while run
         hold on
         drawnow nocallbacks
         
+        if first
+            set(Set.fig,'KeyPressFcn',@key_callback);
+            first = false;
+        end
         % Show the right frame
         frame = pick_frame(IMG,Set);
         
@@ -90,7 +92,7 @@ while run
         
         % Show the optical flow
         if Set.opticalflow
-            if ~exist('flowLK')
+            if ~exist('flowLK','var')
                 flowLK = opticalFlowLK;
             end
             if Set.bw
@@ -217,7 +219,6 @@ set(gca,'units','normalized','position',[0 0 1 1],'visible','off')
 switch Set.keyboard
     % Zoom in
     case 'z'
-        disp 'Zoom in'
         [xi,yi] = ginput(1);
         xl = xlim; w = diff(xl);
         yl = ylim; h = diff(yl);
@@ -225,7 +226,6 @@ switch Set.keyboard
         Set.yl = [yi-h/4, yi+h/4];
     % Zoom out
     case 'x'
-        disp 'Zoom out'
         xl = xlim; w = diff(xl);
         yl = ylim; h = diff(yl);
         xi = mean(xl);
@@ -234,14 +234,12 @@ switch Set.keyboard
         Set.yl = [yi-h, yi+h];
     % Zoom all
     case 'a'
-        disp 'Reset zoom'
         xlim auto
         ylim auto
         Set.xl = xlim;
         Set.yl = ylim;
     % Pan
     case 'p'
-        disp 'Pan around'
         [xi,yi] = ginput(1);
         xl = xlim; w = diff(xl);
         yl = ylim; h = diff(yl);
@@ -249,22 +247,19 @@ switch Set.keyboard
         Set.yl = [yi-h/2, yi+h/2];
     % Adjust time
     case '+'
-        fprintf('Actual speed: %.1f fps\n',Set.fps)
-        disp 'Increase speed'
         Set.time = Set.time*.75;
+        fprintf('New speed: %.1f fps\n',Set.fps)
     case '-'
-        fprintf('Actual speed: %.1f fps\n',Set.fps)
-        disp 'Decrease speed'
         Set.time = Set.time/.75;
+        fprintf('New speed: %.1f fps\n',Set.fps)
     % Gamma correction
     case 'g'
-        disp 'Increment gamma'
         Set.gamma = Set.gamma*.75;
-    case 'h'
-        disp 'Decrease gamma'
+        fprintf('Gamma: %.3f \n',Set.gamma)
+    case 'f'
         Set.gamma = Set.gamma/.75;
+        fprintf('Gamma: %.3f \n',Set.gamma)
     case 's'
-        disp 'Toggle scale colors'
         if Set.scale_col
             Set.scale_col = false;
             Set.himage.CDataMapping = 'direct';
@@ -292,25 +287,24 @@ switch Set.keyboard
         end
     case '.'
         Set.fid = Set.fid+1;
-        fprintf('Next frame: %d\n',Set.fid)
     case ','
         Set.fid = Set.fid-1;
-        fprintf('Previous frame: %d\n',Set.fid)
     case 'j'
         answer = inputdlg('Jumpt to frame:');
         try
-            Set.fid = str2num(answer{1});
+            Set.fid = str2double(answer{1});
             if Set.fid > Set.N_im
                 Set.fid = Set.N_im;
             elseif Set.fid < 1
                 Set.fid = 1;
             end
+        catch me
+            disp(me)
         end
     case 'k'
         disp 'Keyboard'
         keyboard
     case 'o'
-        disp 'Toggle optical flow'
         if Set.opticalflow
             Set.opticalflow = false;
             % Delete previous quiver
@@ -320,7 +314,6 @@ switch Set.keyboard
             Set.opticalflow = true;
         end
     case {'1' '2' '3' '4'}
-        disp 'Set quiver scale'
         if ~isempty(Set.hquiver)
             Set.hquiver.AutoScaleFactor = str2double(Set.keyboard).^2;
         end
@@ -334,6 +327,9 @@ switch Set.keyboard
         catch me
             disp(me)
         end
+    case 'h'
+        disp_commands
+      
 
 end
 
@@ -349,22 +345,26 @@ Set.keyboard = '0';
 set(Set.fig,'CurrentCharacter','0')
 
 function disp_commands
-disp 'z: zoom in the area selected'
-disp 'x: zoom out'
-disp 'a: reset zoom, show all'
-disp 'p: pan'
-disp '+: increase play speed'
-disp '-: decrease play speed'
-disp 'g: increase gamma correction'
-disp 'h: decrease gamma correction'
-disp 's: scale colors'
-disp 'c: change colormap'
-disp 'm: toggle manual frame control'    
-disp '.: next frame'
-disp ',: previous frame'
-disp 'j: jump to frame'
-disp 'e: export video'
-disp 'k: keyboard'
+Message = {'h    shows this help', ...
+ 'z    zoom in the area selected', ...
+'x    zoom out', ...
+'a    reset zoom, show all', ...
+'p    pan', ...
+'+    increase play speed', ...
+'-    decrease play speed', ...
+'g    increase gamma correction', ...
+'f    decrease gamma correction', ...
+'s    scale colors', ...
+'c    change colormap', ...
+'m    toggle manual frame control', ...
+'.    next frame', ...
+',    previous frame', ...
+'j    jump to frame', ...
+'o    toggle optical flow', ...
+'1-4  Set quiver scale (n^1 to n^4)', ...
+'e    export video', ...
+'k    keyboard'};
+waitfor(msgbox(Message,'Info commands'))
 
 function IMG = load_images
 if ispref('film','default_folder')
@@ -396,6 +396,8 @@ for fi = 1:numel(FileName)
     end
 end
 
+function key_callback(src,event)  %#ok<INUSD>
+pause('off')
 
 % 
 % 
