@@ -378,7 +378,12 @@ end
 
 setpref('film','default_folder',PathName);
 
+tic
 for fi = 1:numel(FileName)
+    if toc > 1
+        fprintf('Loading image %d of %d\n',fi,numel(FileName))
+        tic
+    end
     if fi == 1
         samp = imread(fullfile(PathName,FileName{1}));
         dim = size(samp);
