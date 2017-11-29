@@ -40,13 +40,6 @@ else
     Set.time = 0.3;
 end
 
-% Convert image to double
-IMG = double(IMG);
-% Normalise if it's [0 255] format
-if max(IMG(:)) > 1
-    IMG = IMG/255;
-end
-
 run = true; Set.fid = 1; first = true;
 while run
     % Start the timer
@@ -68,6 +61,7 @@ while run
         
         % Apply corrections
         if Set.gamma ~= 1
+            frame = double(frame);
             mi = min(frame(:));
             ma = max(frame(:));
             frame = (frame-mi)/(ma-mi);
@@ -77,10 +71,10 @@ while run
         % Show the image
         if Set.bw
             if isempty(Set.himage)
-                Set.himage = image(frame*64);
-                colormap gray
+                Set.himage = image(frame);
+                colormap(gray(255))
             else
-                Set.himage.CData = frame*64;
+                Set.himage.CData = frame;
             end
         else
             if isempty(Set.himage)
